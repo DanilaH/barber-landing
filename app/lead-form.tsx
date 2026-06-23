@@ -22,6 +22,59 @@ const initialValues: FormValues = {
 };
 
 const CLIENT_REQUEST_TIMEOUT_MS = 12_000;
+const RUSSIAN_PHONE_LENGTH = 10;
+
+function getSubscriberDigits(value: string) {
+  const digits = value.replace(/\D/g, "");
+  const withoutCountryCode =
+    digits.startsWith("7") || digits.startsWith("8")
+      ? digits.slice(1)
+      : digits;
+
+  return withoutCountryCode.slice(0, RUSSIAN_PHONE_LENGTH);
+}
+
+function formatRussianPhone(value: string, previousValue: string) {
+  const hasDigits = /\d/.test(value);
+
+  if (!hasDigits) {
+    return "";
+  }
+
+  let subscriberDigits = getSubscriberDigits(value);
+  const previousSubscriberDigits = getSubscriberDigits(previousValue);
+
+  if (
+    value.length < previousValue.length &&
+    subscriberDigits.length === previousSubscriberDigits.length
+  ) {
+    subscriberDigits = subscriberDigits.slice(0, -1);
+  }
+
+  let formatted = "+7";
+
+  if (subscriberDigits.length > 0) {
+    formatted += ` (${subscriberDigits.slice(0, 3)}`;
+  }
+
+  if (subscriberDigits.length >= 3) {
+    formatted += ")";
+  }
+
+  if (subscriberDigits.length > 3) {
+    formatted += ` ${subscriberDigits.slice(3, 6)}`;
+  }
+
+  if (subscriberDigits.length > 6) {
+    formatted += `-${subscriberDigits.slice(6, 8)}`;
+  }
+
+  if (subscriberDigits.length > 8) {
+    formatted += `-${subscriberDigits.slice(8, 10)}`;
+  }
+
+  return formatted;
+}
 
 function validateForm(values: FormValues): FormErrors {
   const errors: FormErrors = {};
@@ -107,12 +160,14 @@ export default function LeadForm() {
   ) {
     const { name, value } = event.target;
     const field = name as keyof FormValues;
+    const nextValue =
+      field === "phone" ? formatRussianPhone(value, values.phone) : value;
 
     if (field === "service") {
       clearSelectedService();
     }
 
-    setValues((current) => ({ ...current, [field]: value }));
+    setValues((current) => ({ ...current, [field]: nextValue }));
     setErrors((current) => ({ ...current, [field]: undefined }));
 
     if (status === "success" || status === "error") {
