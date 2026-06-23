@@ -131,6 +131,7 @@ a { text-decoration: none; }
 .booking-form-fields {
   display: grid;
   gap: 0.75rem;
+  position: relative;
 }
 
 .honeypot-field {
