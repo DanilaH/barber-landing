@@ -116,7 +116,7 @@ export default function Home() {
           </div>
         </section>
 
-        <aside className="service-board-strip hidden border-b border-white/10 bg-[#151310] text-[#f1e9da] lg:block" aria-label="???????????? ??????">
+        <aside className="service-board-strip hidden border-b border-white/10 bg-[#151310] text-[#f1e9da] lg:block" aria-label="Преимущества записи">
           <div className="mx-auto grid max-w-[1440px] grid-cols-3 px-12">
             {serviceFacts.map(([number, title, text], index) => (
               <div

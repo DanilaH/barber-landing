@@ -15,6 +15,7 @@ const serviceNames: Record<ServiceId, string> = {
 };
 
 const allowedPhoneCharacters = /^[+\d\s()-]+$/;
+const TELEGRAM_REQUEST_TIMEOUT_MS = 8_000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -116,6 +117,12 @@ export async function POST(request: Request) {
     `<b>Комментарий:</b> ${escapeHtml(lead.comment ?? "Не указан")}`,
   ].join("\n");
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    TELEGRAM_REQUEST_TIMEOUT_MS,
+  );
+
   try {
     const telegramResponse = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
@@ -129,6 +136,7 @@ export async function POST(request: Request) {
           text: message,
           parse_mode: "HTML",
         }),
+        signal: controller.signal,
       },
     );
 
@@ -145,6 +153,8 @@ export async function POST(request: Request) {
     }
   } catch {
     return errorResponse(502);
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   return Response.json({ ok: true });

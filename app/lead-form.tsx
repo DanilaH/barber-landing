@@ -21,6 +21,8 @@ const initialValues: FormValues = {
   comment: "",
 };
 
+const CLIENT_REQUEST_TIMEOUT_MS = 12_000;
+
 function validateForm(values: FormValues): FormErrors {
   const errors: FormErrors = {};
   const name = values.name.trim();
@@ -137,6 +139,12 @@ export default function LeadForm() {
     setStatus("loading");
     isSubmittingRef.current = true;
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      CLIENT_REQUEST_TIMEOUT_MS,
+    );
+
     try {
       const response = await fetch("/api/lead", {
         method: "POST",
@@ -149,6 +157,7 @@ export default function LeadForm() {
           service: formValues.service,
           comment: formValues.comment.trim() || undefined,
         }),
+        signal: controller.signal,
       });
 
       const result: unknown = await response.json().catch(() => null);
@@ -167,6 +176,7 @@ export default function LeadForm() {
       setStatusRevision(latestSelectionRevisionRef.current);
       setStatus("error");
     } finally {
+      window.clearTimeout(timeoutId);
       isSubmittingRef.current = false;
     }
   }
