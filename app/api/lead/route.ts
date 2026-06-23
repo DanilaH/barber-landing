@@ -1,20 +1,18 @@
-type ServiceId = "haircut" | "haircut-beard" | "beard-care" | "kids";
+import { isValidRussianPhone, normalizeRussianPhone } from "@/app/phone";
+import {
+  isServiceId,
+  serviceNames,
+  type ServiceId,
+} from "@/app/services";
 
 type LeadPayload = {
   name: string;
   phone: string;
   service: ServiceId;
   comment?: string;
+  website?: string;
 };
 
-const serviceNames: Record<ServiceId, string> = {
-  haircut: "Мужская стрижка",
-  "haircut-beard": "Стрижка + борода",
-  "beard-care": "Уход за бородой",
-  kids: "Детская стрижка",
-};
-
-const allowedPhoneCharacters = /^[+\d\s()-]+$/;
 const TELEGRAM_REQUEST_TIMEOUT_MS = 8_000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -26,7 +24,7 @@ function validateLead(value: unknown): LeadPayload | null {
     return null;
   }
 
-  const { name, phone, service, comment } = value;
+  const { name, phone, service, comment, website } = value;
 
   if (typeof name !== "string" || typeof phone !== "string") {
     return null;
@@ -34,25 +32,25 @@ function validateLead(value: unknown): LeadPayload | null {
 
   const trimmedName = name.trim();
   const trimmedPhone = phone.trim();
+  const normalizedPhone = normalizeRussianPhone(trimmedPhone);
 
   if (!trimmedName || trimmedName.length > 80) {
     return null;
   }
 
-  if (
-    !trimmedPhone ||
-    trimmedPhone.length > 30 ||
-    !allowedPhoneCharacters.test(trimmedPhone) ||
-    trimmedPhone.replace(/\D/g, "").length < 6
-  ) {
+  if (!isValidRussianPhone(trimmedPhone) || !normalizedPhone) {
     return null;
   }
 
-  if (typeof service !== "string" || !Object.hasOwn(serviceNames, service)) {
+  if (!isServiceId(service)) {
     return null;
   }
 
   if (comment !== undefined && typeof comment !== "string") {
+    return null;
+  }
+
+  if (website !== undefined && typeof website !== "string") {
     return null;
   }
 
@@ -64,9 +62,10 @@ function validateLead(value: unknown): LeadPayload | null {
 
   return {
     name: trimmedName,
-    phone: trimmedPhone,
-    service: service as ServiceId,
+    phone: normalizedPhone,
+    service,
     comment: trimmedComment || undefined,
+    website: website?.trim() || undefined,
   };
 }
 
@@ -93,6 +92,14 @@ export async function POST(request: Request) {
     requestBody = await request.json();
   } catch {
     return errorResponse(400);
+  }
+
+  if (
+    isRecord(requestBody) &&
+    typeof requestBody.website === "string" &&
+    requestBody.website.trim()
+  ) {
+    return Response.json({ ok: true });
   }
 
   const lead = validateLead(requestBody);

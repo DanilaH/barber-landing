@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --font-display: "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
-  --font-body: Inter, "Segoe UI", Arial, sans-serif;
+  --font-display: var(--font-roboto-condensed), "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-inter), "Segoe UI", Arial, sans-serif;
+  --premium-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -54,7 +55,7 @@ a { text-decoration: none; }
 }
 
 .section-kicker {
-  color: #8f6d44;
+  color: #7f5b33;
   font-size: 0.75rem;
   font-weight: 800;
   line-height: 1rem;
@@ -67,7 +68,6 @@ a { text-decoration: none; }
   transition: color 180ms ease, transform 180ms ease;
 }
 
-.nav-link:hover { color: #ffffff; transform: translateY(-1px); }
 .nav-link:focus-visible { outline: 2px solid #b79058; outline-offset: 4px; }
 
 .cta-primary,
@@ -87,12 +87,19 @@ a { text-decoration: none; }
   color: #171512;
 }
 
-.cta-primary:hover { background: #d8b579; border-color: #d8b579; transform: translateY(-2px); }
 .cta-primary:active { transform: translateY(0); }
 .cta-primary:focus-visible { outline: 2px solid #e2c28e; outline-offset: 4px; }
 
+.cta-primary span,
+.cta-dark span,
+.service-select span,
+.contact-action span,
+.form-submit-arrow {
+  display: inline-block;
+  transition: transform 180ms var(--premium-ease);
+}
+
 .cta-dark { background: #1b1916; color: #f1e9da; }
-.cta-dark:hover { background: #722f36; transform: translateY(-2px); }
 .cta-dark:active { transform: translateY(0); }
 .cta-dark:focus-visible { outline: 2px solid #722f36; outline-offset: 4px; }
 
@@ -100,21 +107,38 @@ a { text-decoration: none; }
   box-shadow: inset 0 1px rgba(183, 144, 88, 0.08);
 }
 
-.service-row {
-  transition: background-color 180ms ease;
-}
-
-.service-row:hover { background: rgba(255, 255, 255, 0.38); }
-
-.service-select {
-  transition: color 180ms ease, transform 180ms ease;
-}
-
-.service-select:hover { color: #722f36; transform: translateX(4px); }
-.service-select:active { transform: translateX(2px); }
+.service-row { transition: background-color 180ms ease; }
+.service-price { transition: color 220ms ease; }
+.service-select { transition: color 180ms ease; }
+.service-select:active span { transform: translateX(2px); }
 
 .booking-form {
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.booking-form:focus-within:not(.is-highlighting) {
+  border-color: #b79058;
+  background-color: #231f1a;
+}
+
+.form-submit {
+  transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.booking-form-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.honeypot-field {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .process-section {
@@ -122,25 +146,55 @@ a { text-decoration: none; }
   background: #4b272a;
 }
 
-.process-step {
-  transition: background-color 180ms ease;
+.process-step { transition: background-color 180ms ease; }
+.process-number,
+.process-title {
+  transition-duration: 300ms;
+  transition-timing-function: var(--premium-ease);
+}
+.process-line-accent {
+  transition-duration: 500ms;
+  transition-timing-function: var(--premium-ease);
+}
+.process-number,
+.process-line-accent { transition-property: transform; }
+.process-title { transition-property: color; }
+
+.benefit-card {
+  position: relative;
+  transition: transform 300ms var(--premium-ease), background-color 300ms var(--premium-ease);
 }
 
-.process-step:hover { background: rgba(255, 255, 255, 0.025); }
+.benefit-card::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #b79058;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms var(--premium-ease);
+}
+
+.contact-label {
+  color: #746147;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
 
 .contact-action {
   display: flex;
   width: fit-content;
   min-height: 2.75rem;
   align-items: center;
+  gap: 0.3rem;
   color: #6f4b27;
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
-  transition: color 180ms ease, transform 180ms ease;
+  transition: color 180ms ease;
 }
 
-.contact-action:hover { color: #722f36; transform: translateX(4px); }
 .contact-action:focus-visible { outline: 2px solid #722f36; outline-offset: 4px; }
 
 .contact-phone {
@@ -149,8 +203,140 @@ a { text-decoration: none; }
   align-items: center;
   transition: color 180ms ease;
 }
-.contact-phone:hover { color: #722f36; }
+
 .contact-phone:focus-visible { outline: 2px solid #722f36; outline-offset: 4px; }
+
+.scroll-reveal {
+  transition-property: opacity, transform;
+  transition-duration: 700ms;
+  transition-timing-function: var(--premium-ease);
+}
+
+.scroll-reveal.is-prepared { opacity: 0; }
+.scroll-reveal.is-prepared.scroll-reveal--fade-up { transform: translateY(18px); }
+.scroll-reveal.is-prepared.scroll-reveal--fade-left { transform: translateX(-18px); }
+.scroll-reveal.is-prepared.scroll-reveal--fade-right { transform: translateX(18px); }
+.scroll-reveal--delay-100 { transition-delay: 100ms; }
+.scroll-reveal--delay-180 { transition-delay: 180ms; }
+.scroll-reveal.is-prepared.is-revealed {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+@keyframes premium-fade-in-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes premium-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes premium-fade-in-form {
+  from { opacity: 0; transform: translate(8px, 8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes status-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-premium-header {
+  animation: premium-fade-in-down 500ms var(--premium-ease) both;
+}
+
+.animate-premium-hero-label {
+  animation: premium-fade-in-up 600ms var(--premium-ease) both;
+  animation-delay: 100ms;
+}
+
+.animate-premium-hero-title {
+  animation: premium-fade-in-up 650ms var(--premium-ease) both;
+  animation-delay: 180ms;
+}
+
+.animate-premium-hero-desc {
+  animation: premium-fade-in-up 600ms var(--premium-ease) both;
+  animation-delay: 300ms;
+}
+
+.animate-premium-hero-cta {
+  animation: premium-fade-in-up 600ms var(--premium-ease) both;
+  animation-delay: 400ms;
+}
+
+.animate-premium-form {
+  animation: premium-fade-in-form 700ms var(--premium-ease) both;
+  animation-delay: 240ms;
+}
+
+.animate-status-fade-in {
+  animation: status-fade-in 240ms var(--premium-ease) both;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover { color: #ffffff; transform: translateY(-1px); }
+
+  .cta-primary:hover {
+    border-color: #d8b579;
+    background: #d8b579;
+    transform: translateY(-2px);
+  }
+
+  .cta-dark:hover { background: #722f36; transform: translateY(-2px); }
+  .cta-primary:hover span,
+  .cta-dark:hover span,
+  .service-select:hover span,
+  .contact-action:hover span,
+  .form-submit:hover .form-submit-arrow { transform: translateX(4px); }
+
+  .service-row:hover { background: rgba(255, 255, 255, 0.38); }
+  .service-row:hover .service-price { color: #b79058; }
+  .service-select:hover,
+  .contact-action:hover,
+  .contact-phone:hover { color: #722f36; }
+
+  .form-submit:hover {
+    background: #d8b579;
+    transform: translateY(-2px);
+  }
+
+  .benefit-card:hover {
+    background-color: #1e1b18;
+    transform: translateY(-2px);
+  }
+
+  .benefit-card:hover::after { opacity: 0.35; }
+  .process-step:hover { background: rgba(255, 255, 255, 0.025); }
+  .process-step:hover .process-number { transform: scale(1.05); }
+  .process-step:hover .process-line-accent { transform: scaleX(1); }
+  .process-step:hover .process-title { color: #d7ae77; }
+}
+
+@media (min-width: 1024px) and (max-height: 850px) {
+  .hero-surface [data-site-header] {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .hero-surface #top {
+    padding-top: 0;
+    padding-bottom: 1.5rem;
+  }
+
+  .booking-form-inner { padding: 0.875rem; }
+  .booking-form-title { font-size: 1.65rem; }
+  .booking-form-copy { margin-top: 0.375rem; line-height: 1.2rem; }
+  .booking-form-trust { margin-top: 0.5rem; }
+  .booking-form-fields { margin-top: 0.75rem; gap: 0.5rem; }
+  .booking-form-fields label { margin-bottom: 0.25rem; }
+  .booking-form-fields input,
+  .booking-form-fields select { height: 2.5rem; }
+  .booking-form-textarea { min-height: 3.5rem; }
+  .booking-form-status { height: 5.25rem; }
+}
 
 @media (max-width: 639px) {
   .text-outline { -webkit-text-stroke-width: 0.75px; }
@@ -164,15 +350,36 @@ a { text-decoration: none; }
   *, *::before, *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .scroll-reveal,
+  .animate-premium-header,
+  .animate-premium-hero-label,
+  .animate-premium-hero-title,
+  .animate-premium-hero-desc,
+  .animate-premium-hero-cta,
+  .animate-premium-form,
+  .animate-status-fade-in {
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .nav-link:hover,
   .cta-primary:hover,
   .cta-dark:hover,
-  .service-select:hover,
-  .contact-action:hover {
-    transform: none;
+  .form-submit:hover,
+  .benefit-card:hover,
+  .process-step:hover .process-number,
+  .process-step:hover .process-line-accent,
+  .cta-primary:hover span,
+  .cta-dark:hover span,
+  .service-select:hover span,
+  .contact-action:hover span,
+  .form-submit:hover .form-submit-arrow {
+    transform: none !important;
   }
 }
